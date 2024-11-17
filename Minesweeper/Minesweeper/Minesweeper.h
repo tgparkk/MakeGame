@@ -19,9 +19,13 @@ public:
     const std::vector<std::vector<Cell>>& getBoard() const; // 보드 반환
     void revealAllCells();            // 모든 셀 열기 (지뢰 포함)
     void revealNearbyCells(int row, int col); // 주변 셀 열기
+    void checkForWrongFlags();        // 잘못된 플래그 확인
+
+    bool isGameOver() const { return gameOver; } // 게임 오버 여부 확인
 
 private:
     int rows, cols, mineCount;
+    bool gameOver = false;  // 게임 오버 상태
     std::vector<std::vector<Cell>> board;
 
     void placeMines();                // 지뢰 배치
