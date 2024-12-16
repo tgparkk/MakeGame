@@ -49,6 +49,18 @@ void renderBoard(const Minesweeper& game, float cellSize) {
     for (int r = 0; r < board.size(); ++r) {
         for (int c = 0; c < board[r].size(); ++c) {
             renderCell(r, c, board[r][c], cellSize);
+
+            // 2. 각 칸의 경계선을 그리기
+            float x = c * cellSize;
+            float y = r * cellSize;
+
+            glColor3f(0.0f, 0.0f, 0.0f); // 경계선의 색 (검정색)
+            glBegin(GL_LINE_LOOP);      // 사각형 경계선을 그리는 모드
+            glVertex2f(x, y);                   // 왼쪽 아래
+            glVertex2f(x + cellSize, y);        // 오른쪽 아래
+            glVertex2f(x + cellSize, y + cellSize); // 오른쪽 위
+            glVertex2f(x, y + cellSize);        // 왼쪽 위
+            glEnd();
         }
     }
 }
