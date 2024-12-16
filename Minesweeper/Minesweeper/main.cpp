@@ -4,7 +4,11 @@
 #include "Renderer.h"
 #include <map>
 
-Minesweeper game(10, 10, 20);  // 10x10 보드, 20개의 지뢰
+uint16_t row_num = 10;
+uint16_t col_num = 10;
+uint16_t mine_num = 10;
+
+Minesweeper game(row_num, col_num, mine_num);
 float cellSize = 30.0f;
 float timer = 0.0f; // 게임 타이머 변수
 
@@ -68,7 +72,7 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (action == GLFW_PRESS && key == GLFW_KEY_F5) {
         // F5 키가 눌렸을 때 게임 재시작
-        game = Minesweeper(10, 10, 20);  // 새로운 게임 생성
+        game = Minesweeper(row_num, col_num, mine_num);  // 새로운 게임 생성
     }
 }
 
@@ -83,7 +87,13 @@ int main() {
         return -1;
     }
 
-    window = glfwCreateWindow(800, 600, "Minesweeper", nullptr, nullptr);
+    // TODO
+    // Implement a function to receive input(row,col) 
+
+    uint32_t width = cellSize * col_num;
+    uint32_t heigth = cellSize * row_num;
+
+    window = glfwCreateWindow(width, heigth, "Minesweeper", nullptr, nullptr);
     if (!window) {
         std::cerr << "Window creation failed!" << std::endl;
         glfwTerminate();
@@ -91,7 +101,7 @@ int main() {
     }
 
     glfwMakeContextCurrent(window);
-    initOpenGL(800, 600);
+    initOpenGL(width, heigth);
 
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
     glfwSetKeyCallback(window, keyCallback);  // 키 콜백 설정
