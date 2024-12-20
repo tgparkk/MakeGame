@@ -3,6 +3,8 @@
 #include "Minesweeper.h"
 #include "Renderer.h"
 #include <map>
+#include "define.h"
+
 
 uint16_t row_num = 10;
 uint16_t col_num = 10;
@@ -16,46 +18,28 @@ GLFWwindow* window;  // window 포인터 선언
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
-    renderBoard(game, cellSize);
+    Render::renderScoreBoard(game, cellSize, row_num, col_num, timer);
     
-    // 게임 상태 텍스트 표시
-    //renderGameState();
+    glPushMatrix();
+    glTranslatef(0.0f, score_board_height, 0.0f);
+    Render::renderBoard(game, cellSize);
+    glPopMatrix();
 
     glfwSwapBuffers(window);
-}
-
-// 문자 텍스처 맵 (폰트 텍스처를 관리하기 위한 맵)
-std::map<char, GLuint> charTextures;
-
-GLuint loadTexture(const char* filepath); // 텍스처 로딩 함수 (폰트 이미지 텍스처 로딩)
-
-void renderText(const std::string& text, float x, float y) {
-    glPushMatrix();
-    glTranslatef(x, y, 0);  // 텍스트의 위치 설정
-
-    for (char c : text) {
-        // 텍스트에 해당하는 문자 텍스처를 찾아서 그린다
-        GLuint texture = charTextures[c];
-
-        // 텍스처를 화면에 출력하는 코드
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 0.0f); glVertex2f(0.0f, 0.0f);  // 왼쪽 아래
-        glTexCoord2f(1.0f, 0.0f); glVertex2f(1.0f, 0.0f);  // 오른쪽 아래
-        glTexCoord2f(1.0f, 1.0f); glVertex2f(1.0f, 1.0f);  // 오른쪽 위
-        glTexCoord2f(0.0f, 1.0f); glVertex2f(0.0f, 1.0f);  // 왼쪽 위
-        glEnd();
-
-        glTranslatef(1.0f, 0.0f, 0.0f);  // 각 문자 간의 간격 조정
-    }
-
-    glPopMatrix();
 }
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     if (action == GLFW_PRESS) {
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
+
+        // 스코어 보드 영역을 클릭했는지 확인
+        if (ypos < score_board_height) {
+            return; // 스코어 보드 영역은 무시
+        }
+
+        // 스코어 보드 높이를 제외한 실제 격자 좌표 계산
+        ypos -= score_board_height;
 
         int col = static_cast<int>(xpos / cellSize);
         int row = static_cast<int>(ypos / cellSize);
@@ -101,7 +85,7 @@ int main() {
     }
 
     glfwMakeContextCurrent(window);
-    initOpenGL(width, heigth);
+    Render::initOpenGL(width, heigth);
 
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
     glfwSetKeyCallback(window, keyCallback);  // 키 콜백 설정
@@ -114,21 +98,4 @@ int main() {
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
-}
-
-GLuint loadTexture(const char* filepath) {
-    // 이미지 파일을 OpenGL 텍스처로 로드하는 코드 (예: STB 이미지 라이브러리 사용)
-    GLuint textureID;
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-
-    int width, height, channels;
-    //unsigned char* data = stbi_load(filepath, &width, &height, &channels, 0);
-    //if (data) {
-    //    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    //    glGenerateMipmap(GL_TEXTURE_2D);
-    //}
-    //stbi_image_free(data);
-
-    return textureID;
 }

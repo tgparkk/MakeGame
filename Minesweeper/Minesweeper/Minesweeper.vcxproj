@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="define.h" />
     <ClInclude Include="Minesweeper.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Renderer.h" />

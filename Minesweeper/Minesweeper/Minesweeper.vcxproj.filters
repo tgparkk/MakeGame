@@ -20,6 +20,9 @@
     <ClInclude Include="Renderer.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
+    <ClInclude Include="define.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Minesweeper.cpp">

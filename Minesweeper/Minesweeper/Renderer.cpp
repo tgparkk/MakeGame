@@ -1,7 +1,12 @@
 #include "Renderer.h"
 #include <GLFW/glfw3.h>
+#include <string>
+#include "pch.h"
 
-void initOpenGL(int windowWidth, int windowHeight) {
+// 정적 변수 초기화
+std::map<char, GLuint> Render::charTextures;
+
+void Render::initOpenGL(int windowWidth, int windowHeight) {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0, windowWidth, windowHeight, 0, -1, 1);  // 2D 좌표계 설정
@@ -10,7 +15,7 @@ void initOpenGL(int windowWidth, int windowHeight) {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);  // 배경색 설정
 }
 
-void renderCell(int row, int col, const Cell& cell, float cellSize) {
+void Render::renderCell(int row, int col, const Cell& cell, float cellSize) {
     float x = col * cellSize;
     float y = row * cellSize;
 
@@ -44,7 +49,7 @@ void renderCell(int row, int col, const Cell& cell, float cellSize) {
     }
 }
 
-void renderBoard(const Minesweeper& game, float cellSize) {
+void Render::renderBoard(const Minesweeper& game, float cellSize) {
     const auto& board = game.getBoard();
     for (int r = 0; r < board.size(); ++r) {
         for (int c = 0; c < board[r].size(); ++c) {
@@ -65,7 +70,40 @@ void renderBoard(const Minesweeper& game, float cellSize) {
     }
 }
 
-void drawNumber(int number, float x, float y, float size) {
+void Render::renderScoreBoard(const Minesweeper& game, float cellSize, uint16_t row_num, uint16_t col_num, float timer) {
+    float scoreBoardY = row_num * cellSize;
+
+    // 스코어보드 배경 색 설정 및 영역 렌더링
+    glColor3f(0.8f, 0.8f, 0.8f);  // 밝은 회색
+    glBegin(GL_QUADS);
+    glVertex2f(0.0f, scoreBoardY);                      // 왼쪽 아래
+    glVertex2f(col_num * cellSize, scoreBoardY);        // 오른쪽 아래
+    glVertex2f(col_num * cellSize, scoreBoardY + score_board_height);  // 오른쪽 위
+    glVertex2f(0.0f, scoreBoardY + score_board_height); // 왼쪽 위
+    glEnd();
+
+    // 스코어보드 텍스트 표시
+    glColor3f(0.0f, 0.0f, 0.0f);  // 검은색 텍스트
+
+    // 남은 지뢰 개수
+    std::string minesLeftText
+        = "Mines Left: ";
+        //= "Mines Left: " + std::to_string(game.getMineCount() - game.getFlagCount());
+    renderText(minesLeftText, 10.0f, scoreBoardY + 10.0f);
+
+    // 타이머
+    std::string timerText 
+        = "Time: " + std::to_string(static_cast<int>(timer));
+    renderText(timerText, 150.0f, scoreBoardY + 10.0f);
+
+    // 게임 상태
+    std::string statusText
+        = "Status: ";
+        //= "Status: " + game.getGameState();
+    renderText(statusText, 300.0f, scoreBoardY + 10.0f);
+}
+
+void Render::drawNumber(int number, float x, float y, float size) {
     glColor3f(0.0f, 0.0f, 0.0f); // 숫자 색상: 검정색
     glLineWidth(2.0f);
 
@@ -170,7 +208,7 @@ void drawNumber(int number, float x, float y, float size) {
 }
 
 
-void drawFlag(float x, float y, float size) {
+void Render::drawFlag(float x, float y, float size) {
     // 깃발 천 (빨간색)
     glColor3f(1.0f, 0.0f, 0.0f);
     glBegin(GL_TRIANGLES);
@@ -188,3 +226,62 @@ void drawFlag(float x, float y, float size) {
     glEnd();
 }
 
+void Render::renderText(const std::string& text, float x, float y) {
+    glEnable(GL_TEXTURE_2D);
+
+    for (char c : text) {
+        if (charTextures.find(c) == charTextures.end()) continue; // 텍스처 없는 문자는 무시
+
+        GLuint texture = charTextures[c];
+        glBindTexture(GL_TEXTURE_2D, texture);
+
+        const uint16_t scale = 1;
+
+        float charSize = 16.0f * scale; // 문자 크기 조정
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 0.0f); glVertex2f(x, y);
+        glTexCoord2f(1.0f, 0.0f); glVertex2f(x + charSize, y);
+        glTexCoord2f(1.0f, 1.0f); glVertex2f(x + charSize, y + charSize);
+        glTexCoord2f(0.0f, 1.0f); glVertex2f(x, y + charSize);
+        glEnd();
+
+        x += charSize; // 문자 간격
+    }
+
+    glDisable(GL_TEXTURE_2D);
+}
+
+void Render::initCharTextures(const std::string& fontTexturePath, int charWidth, int charHeight) {
+    GLuint textureID = Render::loadTexture(fontTexturePath.c_str());
+
+    if (textureID == 0) {
+        //throw std::runtime_error("Failed to load font texture");
+    }
+
+    // 텍스처 ID를 저장하고 각 문자의 텍스처 좌표 매핑
+    charTextures.clear();
+    for (char c = 32; c < 127; ++c) { // ASCII 32~126 문자
+        charTextures[c] = textureID;
+    }
+}
+
+GLuint Render::loadTexture(const char* filepath) {
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    int width, height, channels;
+    unsigned char* data = stbi_load(filepath, &width, &height, &channels, 0);
+    if (data) {
+        GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        //glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else {
+        glDeleteTextures(1, &textureID);
+        textureID = 0;  // 로드 실패 시 0 반환
+    }
+
+    stbi_image_free(data);
+    return textureID;
+}
