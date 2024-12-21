@@ -1,11 +1,19 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include <GLFW/glfw3.h>
+
 #include "Minesweeper.h"
 #include "define.h"
-#include <string>
-#include <map>
+#include "pch.h"
+
+// 글자 데이터를 저장할 구조체
+struct Character {
+	GLuint TextureID;   // 글자 텍스처 ID
+	int SizeX, SizeY;   // 글자 크기
+	int BearingX, BearingY; // 글자 위치 조정
+	GLuint Advance;     // 다음 글자로 이동할 거리
+};
+
 
 
 class Render {
@@ -23,14 +31,13 @@ public:
 
 	static void drawFlag(float x, float y, float size);
 
-	static void renderText(const std::string& text, float x, float y);
-	static GLuint loadTexture(const char* filepath); // 텍스처 로딩 함수 (폰트 이미지 텍스처 로딩)
-	
+	static void RenderText(const std::string& text, float x, float y, float scale);
 
-	// 문자 텍스처 맵 (폰트 텍스처를 관리하기 위한 맵)
-	static void initCharTextures(const std::string& fontTexturePath
-		, int charWidth, int charHeight);
-	static std::map<char, GLuint> charTextures;
+
+
+	static void LoadFont(const char* fontPath);
+
+	static std::map<char, Character> Characters; // 글자 데이터 맵
 
 };
 

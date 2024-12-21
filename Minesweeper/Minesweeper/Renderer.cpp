@@ -4,7 +4,7 @@
 #include "pch.h"
 
 // 정적 변수 초기화
-std::map<char, GLuint> Render::charTextures;
+std::map<char, Character> Render::Characters;
 
 void Render::initOpenGL(int windowWidth, int windowHeight) {
     glMatrixMode(GL_PROJECTION);
@@ -71,36 +71,42 @@ void Render::renderBoard(const Minesweeper& game, float cellSize) {
 }
 
 void Render::renderScoreBoard(const Minesweeper& game, float cellSize, uint16_t row_num, uint16_t col_num, float timer) {
-    float scoreBoardY = row_num * cellSize;
+    float scoreBoardY = 0;
 
     // 스코어보드 배경 색 설정 및 영역 렌더링
     glColor3f(0.8f, 0.8f, 0.8f);  // 밝은 회색
     glBegin(GL_QUADS);
     glVertex2f(0.0f, scoreBoardY);                      // 왼쪽 아래
     glVertex2f(col_num * cellSize, scoreBoardY);        // 오른쪽 아래
-    glVertex2f(col_num * cellSize, scoreBoardY + score_board_height);  // 오른쪽 위
-    glVertex2f(0.0f, scoreBoardY + score_board_height); // 왼쪽 위
+    glVertex2f(col_num * cellSize, scoreBoardY );  // 오른쪽 위
+    glVertex2f(0.0f, scoreBoardY ); // 왼쪽 위
     glEnd();
 
-    // 스코어보드 텍스트 표시
-    glColor3f(0.0f, 0.0f, 0.0f);  // 검은색 텍스트
+    // 텍스트 렌더링을 위한 색상 설정 (흰색)
+    glColor3f(1.0f, 1.0f, 1.0f);  // 흰색 텍스트
+
+    // 텍스트 출력 전에 텍스처를 활성화해야 합니다.
+    glEnable(GL_TEXTURE_2D);
 
     // 남은 지뢰 개수
     std::string minesLeftText
         = "Mines Left: ";
         //= "Mines Left: " + std::to_string(game.getMineCount() - game.getFlagCount());
-    renderText(minesLeftText, 10.0f, scoreBoardY + 10.0f);
+    RenderText(minesLeftText, 10.0f, scoreBoardY + 10.0f, 1);
 
     // 타이머
     std::string timerText 
         = "Time: " + std::to_string(static_cast<int>(timer));
-    renderText(timerText, 150.0f, scoreBoardY + 10.0f);
+    RenderText(timerText, 150.0f, scoreBoardY + 10.0f, 1);
 
     // 게임 상태
     std::string statusText
         = "Status: ";
         //= "Status: " + game.getGameState();
-    renderText(statusText, 300.0f, scoreBoardY + 10.0f);
+    RenderText(statusText, 300.0f, scoreBoardY + 10.0f, 1);
+
+    // 텍스처 비활성화
+    glDisable(GL_TEXTURE_2D);
 }
 
 void Render::drawNumber(int number, float x, float y, float size) {
@@ -226,62 +232,85 @@ void Render::drawFlag(float x, float y, float size) {
     glEnd();
 }
 
-void Render::renderText(const std::string& text, float x, float y) {
-    glEnable(GL_TEXTURE_2D);
+void Render::RenderText(const std::string& text, float x, float y, float scale) {
+    for (auto c : text) {
+        Character ch = Characters[c];
 
-    for (char c : text) {
-        if (charTextures.find(c) == charTextures.end()) continue; // 텍스처 없는 문자는 무시
+        float xpos = x + ch.BearingX * scale;
+        float ypos = y - (ch.SizeY - ch.BearingY) * scale;
 
-        GLuint texture = charTextures[c];
-        glBindTexture(GL_TEXTURE_2D, texture);
+        float w = ch.SizeX * scale;
+        float h = ch.SizeY * scale;
 
-        const uint16_t scale = 1;
+        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
 
-        float charSize = 16.0f * scale; // 문자 크기 조정
         glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 0.0f); glVertex2f(x, y);
-        glTexCoord2f(1.0f, 0.0f); glVertex2f(x + charSize, y);
-        glTexCoord2f(1.0f, 1.0f); glVertex2f(x + charSize, y + charSize);
-        glTexCoord2f(0.0f, 1.0f); glVertex2f(x, y + charSize);
+        glTexCoord2f(0.0f, 0.0f); glVertex2f(xpos, ypos);
+        glTexCoord2f(1.0f, 0.0f); glVertex2f(xpos + w, ypos);
+        glTexCoord2f(1.0f, 1.0f); glVertex2f(xpos + w, ypos + h);
+        glTexCoord2f(0.0f, 1.0f); glVertex2f(xpos, ypos + h);
         glEnd();
 
-        x += charSize; // 문자 간격
-    }
-
-    glDisable(GL_TEXTURE_2D);
-}
-
-void Render::initCharTextures(const std::string& fontTexturePath, int charWidth, int charHeight) {
-    GLuint textureID = Render::loadTexture(fontTexturePath.c_str());
-
-    if (textureID == 0) {
-        //throw std::runtime_error("Failed to load font texture");
-    }
-
-    // 텍스처 ID를 저장하고 각 문자의 텍스처 좌표 매핑
-    charTextures.clear();
-    for (char c = 32; c < 127; ++c) { // ASCII 32~126 문자
-        charTextures[c] = textureID;
+        x += (ch.Advance >> 6) * scale;
     }
 }
 
-GLuint Render::loadTexture(const char* filepath) {
-    GLuint textureID;
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-
-    int width, height, channels;
-    unsigned char* data = stbi_load(filepath, &width, &height, &channels, 0);
-    if (data) {
-        GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        //glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else {
-        glDeleteTextures(1, &textureID);
-        textureID = 0;  // 로드 실패 시 0 반환
+// FreeType 초기화 및 글자 텍스처 생성
+void Render::LoadFont(const char* fontPath) {
+    FT_Library ft;
+    if (FT_Init_FreeType(&ft)) {
+        std::cerr << "Could not initialize FreeType Library" << std::endl;
+        return;
     }
 
-    stbi_image_free(data);
-    return textureID;
+    FT_Face face;
+    if (FT_New_Face(ft, fontPath, 0, &face)) {
+        std::cerr << "Failed to load font" << std::endl;
+        return;
+    }
+
+    FT_Set_Pixel_Sizes(face, 0, 48); // 폰트 크기 설정
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // 텍스처 정렬
+
+    for (unsigned char c = 0; c < 128; c++) {
+        if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
+            std::cerr << "Failed to load Glyph: " << c << std::endl;
+            continue;
+        }
+
+        GLuint texture;
+        glGenTextures(1, &texture);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RED,
+            face->glyph->bitmap.width,
+            face->glyph->bitmap.rows,
+            0,
+            GL_RED,
+            GL_UNSIGNED_BYTE,
+            face->glyph->bitmap.buffer
+        );
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);//GL_CLAMP_TO_EDGE
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        Character character = {
+            texture,
+            face->glyph->bitmap.width,
+            face->glyph->bitmap.rows,
+            face->glyph->bitmap_left,
+            face->glyph->bitmap_top,
+            static_cast<GLuint>(face->glyph->advance.x >> 6)
+        };
+
+        Characters.insert(std::pair<char, Character>(c, character));
+    }
+
+    FT_Done_Face(face);
+    FT_Done_FreeType(ft);
 }
