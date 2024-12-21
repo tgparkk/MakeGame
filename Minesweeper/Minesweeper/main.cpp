@@ -1,10 +1,9 @@
-#include <GLFW/glfw3.h>
-#include <iostream>
+
 #include "Minesweeper.h"
 #include "Renderer.h"
-#include <map>
 #include "define.h"
 
+#include "pch.h"
 
 uint16_t row_num = 10;
 uint16_t col_num = 10;
@@ -75,7 +74,8 @@ int main() {
     // Implement a function to receive input(row,col) 
 
     uint32_t width = cellSize * col_num;
-    uint32_t heigth = cellSize * row_num;
+    //uint32_t heigth = cellSize * row_num;
+    uint32_t heigth = cellSize * row_num + score_board_height;
 
     window = glfwCreateWindow(width, heigth, "Minesweeper", nullptr, nullptr);
     if (!window) {
@@ -89,6 +89,23 @@ int main() {
 
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
     glfwSetKeyCallback(window, keyCallback);  // 키 콜백 설정
+
+
+    // 현재 작업 디렉토리 얻기
+    char buffer[256];
+    _getcwd(buffer, 256);
+    std::filesystem::path currentPath(buffer);
+    // 상위 디렉토리 얻기
+    std::filesystem::path parentPath = currentPath.parent_path();
+    // 상대 경로
+    std::string relativePath = "libraries\\Roboto\\Roboto-BoldItalic.ttf";
+    // std::filesystem을 이용해 경로 처리 (상위 디렉토리 '..' 처리 포함)
+    std::filesystem::path fullPath = std::filesystem::path(parentPath) / relativePath;
+    //Render::initCharTextures(fullPath.string(), 5, 5);;
+    //std::string fullPath = "D:\\GIT\\MakeGame\\Minesweeper\\libraries\\Roboto\\Roboto-BoldItalic.ttf";
+
+    Render::LoadFont(fullPath.string().c_str());
+    //Render::LoadFont(fullPath.c_str());
 
     while (!glfwWindowShouldClose(window)) {
         display();
