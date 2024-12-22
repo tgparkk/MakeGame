@@ -107,7 +107,15 @@ int main() {
     Render::LoadFont(fullPath.string().c_str());
     //Render::LoadFont(fullPath.c_str());
 
+    float lastFrameTime = glfwGetTime(); // 초기 시간 설정
+
     while (!glfwWindowShouldClose(window)) {
+        float currentFrameTime = glfwGetTime(); // 현재 프레임 시간
+        float deltaTime = currentFrameTime - lastFrameTime; // 시간 차이 계산
+        lastFrameTime = currentFrameTime;
+
+        updateTimer(deltaTime); // 타이머 업데이트
+
         display();
         glfwPollEvents();
     }
