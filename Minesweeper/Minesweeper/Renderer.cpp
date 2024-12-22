@@ -1,18 +1,18 @@
-#include "Renderer.h"
+ï»¿#include "Renderer.h"
 #include <GLFW/glfw3.h>
 #include <string>
 #include "pch.h"
 
-// Á¤Àû º¯¼ö ÃÊ±âÈ­
+// ì •ì  ë³€ìˆ˜ ì´ˆê¸°í™”
 std::map<char, Character> Render::Characters;
 
 void Render::initOpenGL(int windowWidth, int windowHeight) {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0, windowWidth, windowHeight, 0, -1, 1);  // 2D ÁÂÇ¥°è ¼³Á¤
+    glOrtho(0, windowWidth, windowHeight, 0, -1, 1);  // 2D ì¢Œí‘œê³„ ì„¤ì •
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);  // ¹è°æ»ö ¼³Á¤
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);  // ë°°ê²½ìƒ‰ ì„¤ì •
 }
 
 void Render::renderCell(int row, int col, const Cell& cell, float cellSize) {
@@ -20,10 +20,10 @@ void Render::renderCell(int row, int col, const Cell& cell, float cellSize) {
     float y = row * cellSize;
 
     if (cell.isRevealed) {
-        glColor3f(cell.isMine ? 1.0f : 0.8f, 0.8f, 0.8f); // Áö·Ú¸é »¡°£»ö, ¾Æ´Ï¸é È¸»ö
+        glColor3f(cell.isMine ? 1.0f : 0.8f, 0.8f, 0.8f); // ì§€ë¢°ë©´ ë¹¨ê°„ìƒ‰, ì•„ë‹ˆë©´ íšŒìƒ‰
     }
     else {
-        glColor3f(cell.isFlagged ? (cell.isMine ? 1.0f : 0.8f) : 0.5f,  // Àß¸øµÈ ÇÃ·¡±×ÀÏ °æ¿ì »¡°£»ö
+        glColor3f(cell.isFlagged ? (cell.isMine ? 1.0f : 0.8f) : 0.5f,  // ì˜ëª»ëœ í”Œë˜ê·¸ì¼ ê²½ìš° ë¹¨ê°„ìƒ‰
                   cell.isFlagged ? (cell.isMine ? 0.0f : 0.0f) : 0.5f,
                   0.5f);
     }
@@ -35,17 +35,17 @@ void Render::renderCell(int row, int col, const Cell& cell, float cellSize) {
     glVertex2f(x, y + cellSize);
     glEnd();
 
-    // ³»¿ë¹° ±×¸®±â
+    // ë‚´ìš©ë¬¼ ê·¸ë¦¬ê¸°
     if (cell.isRevealed) {
         if (cell.isMine) {
-            drawFlag(x, y, cellSize); // Áö·Ú´Â ±ê¹ß·Î Ç¥½Ã
+            drawFlag(x, y, cellSize); // ì§€ë¢°ëŠ” ê¹ƒë°œë¡œ í‘œì‹œ
         }
         else {
-            drawNumber(cell.surroundingMines, x, y, cellSize * 0.6f); // ¼ıÀÚ ±×¸®±â
+            drawNumber(cell.surroundingMines, x, y, cellSize * 0.6f); // ìˆ«ì ê·¸ë¦¬ê¸°
         }
     }
     else if (cell.isFlagged) {
-        drawFlag(x, y, cellSize); // ±ê¹ß
+        drawFlag(x, y, cellSize); // ê¹ƒë°œ
     }
 }
 
@@ -55,158 +55,143 @@ void Render::renderBoard(const Minesweeper& game, float cellSize) {
         for (int c = 0; c < board[r].size(); ++c) {
             renderCell(r, c, board[r][c], cellSize);
 
-            // 2. °¢ Ä­ÀÇ °æ°è¼±À» ±×¸®±â
+            // 2. ê° ì¹¸ì˜ ê²½ê³„ì„ ì„ ê·¸ë¦¬ê¸°
             float x = c * cellSize;
             float y = r * cellSize;
 
-            glColor3f(0.0f, 0.0f, 0.0f); // °æ°è¼±ÀÇ »ö (°ËÁ¤»ö)
-            glBegin(GL_LINE_LOOP);      // »ç°¢Çü °æ°è¼±À» ±×¸®´Â ¸ğµå
-            glVertex2f(x, y);                   // ¿ŞÂÊ ¾Æ·¡
-            glVertex2f(x + cellSize, y);        // ¿À¸¥ÂÊ ¾Æ·¡
-            glVertex2f(x + cellSize, y + cellSize); // ¿À¸¥ÂÊ À§
-            glVertex2f(x, y + cellSize);        // ¿ŞÂÊ À§
+            glColor3f(0.0f, 0.0f, 0.0f); // ê²½ê³„ì„ ì˜ ìƒ‰ (ê²€ì •ìƒ‰)
+            glBegin(GL_LINE_LOOP);      // ì‚¬ê°í˜• ê²½ê³„ì„ ì„ ê·¸ë¦¬ëŠ” ëª¨ë“œ
+            glVertex2f(x, y);                   // ì™¼ìª½ ì•„ë˜
+            glVertex2f(x + cellSize, y);        // ì˜¤ë¥¸ìª½ ì•„ë˜
+            glVertex2f(x + cellSize, y + cellSize); // ì˜¤ë¥¸ìª½ ìœ„
+            glVertex2f(x, y + cellSize);        // ì™¼ìª½ ìœ„
             glEnd();
         }
     }
 }
 
 void Render::renderScoreBoard(const Minesweeper& game, float cellSize, uint16_t row_num, uint16_t col_num, float timer) {
-    float scoreBoardY = 0;
+    float scoreBoardY = score_board_height / 2.0f;
 
-    // ½ºÄÚ¾îº¸µå ¹è°æ »ö ¼³Á¤ ¹× ¿µ¿ª ·»´õ¸µ
-    glColor3f(0.8f, 0.8f, 0.8f);  // ¹àÀº È¸»ö
+    // ìŠ¤ì½”ì–´ë³´ë“œ ë°°ê²½
+    glColor3f(0.2f, 0.2f, 0.2f);
     glBegin(GL_QUADS);
-    glVertex2f(0.0f, scoreBoardY);                      // ¿ŞÂÊ ¾Æ·¡
-    glVertex2f(col_num * cellSize, scoreBoardY);        // ¿À¸¥ÂÊ ¾Æ·¡
-    glVertex2f(col_num * cellSize, scoreBoardY );  // ¿À¸¥ÂÊ À§
-    glVertex2f(0.0f, scoreBoardY ); // ¿ŞÂÊ À§
+    glVertex2f(0.0f, 0.0f);
+    glVertex2f(col_num * cellSize, 0.0f);
+    glVertex2f(col_num * cellSize, score_board_height);
+    glVertex2f(0.0f, score_board_height);
     glEnd();
 
-    // ÅØ½ºÆ® ·»´õ¸µÀ» À§ÇÑ »ö»ó ¼³Á¤ (Èò»ö)
-    glColor3f(1.0f, 1.0f, 1.0f);  // Èò»ö ÅØ½ºÆ®
+    float timerX = (col_num * cellSize) - 50.0f; // ì˜¤ë¥¸ìª½ ëìœ¼ë¡œ ì •ë ¬
+    float timerY = scoreBoardY - 10.0f;
+    float digitSize = 20.0f;
 
-    // ÅØ½ºÆ® Ãâ·Â Àü¿¡ ÅØ½ºÃ³¸¦ È°¼ºÈ­ÇØ¾ß ÇÕ´Ï´Ù.
-    glEnable(GL_TEXTURE_2D);
+    // ìˆ«ì í…ŒìŠ¤íŠ¸
+    float startX = 20.0f; // ì‹œì‘ x ì¢Œí‘œ
+    float startY = scoreBoardY - 10.0f; // ì‹œì‘ y ì¢Œí‘œ
+    renderTestDigits(startX, startY, digitSize);
 
-    // ³²Àº Áö·Ú °³¼ö
-    std::string minesLeftText
-        = "Mines Left: ";
-        //= "Mines Left: " + std::to_string(game.getMineCount() - game.getFlagCount());
-    RenderText(minesLeftText, 10.0f, scoreBoardY + 10.0f, 1);
-
-    // Å¸ÀÌ¸Ó
-    std::string timerText 
-        = "Time: " + std::to_string(static_cast<int>(timer));
-    RenderText(timerText, 150.0f, scoreBoardY + 10.0f, 1);
-
-    // °ÔÀÓ »óÅÂ
-    std::string statusText
-        = "Status: ";
-        //= "Status: " + game.getGameState();
-    RenderText(statusText, 300.0f, scoreBoardY + 10.0f, 1);
-
-    // ÅØ½ºÃ³ ºñÈ°¼ºÈ­
-    glDisable(GL_TEXTURE_2D);
+    //renderTimer(static_cast<int>(timer), timerX, timerY, digitSize);
 }
 
 void Render::drawNumber(int number, float x, float y, float size) {
-    glColor3f(0.0f, 0.0f, 0.0f); // ¼ıÀÚ »ö»ó: °ËÁ¤»ö
+    glColor3f(0.0f, 0.0f, 0.0f); // ìˆ«ì ìƒ‰ìƒ: ê²€ì •ìƒ‰
     glLineWidth(2.0f);
 
     glBegin(GL_LINES);
-    // ¼ıÀÚ µµÇü Á¤ÀÇ
+    // ìˆ«ì ë„í˜• ì •ì˜
     switch (number) {
-    case 0: // ¼ıÀÚ 0
-        glVertex2f(x, y);                     // ÁÂÃø ÇÏ´Ü
-        glVertex2f(x, y + size);              // ÁÂÃø »ó´Ü
-        glVertex2f(x, y + size);              // »ó´Ü °¡·Î¼±
+    case 0: // ìˆ«ì 0
+        glVertex2f(x, y);                     // ì¢Œì¸¡ í•˜ë‹¨
+        glVertex2f(x, y + size);              // ì¢Œì¸¡ ìƒë‹¨
+        glVertex2f(x, y + size);              // ìƒë‹¨ ê°€ë¡œì„ 
         glVertex2f(x + size, y + size);
-        glVertex2f(x + size, y + size);       // ¿ìÃø »ó´Ü
+        glVertex2f(x + size, y + size);       // ìš°ì¸¡ ìƒë‹¨
         glVertex2f(x + size, y);
-        glVertex2f(x + size, y);              // ¿ìÃø ÇÏ´Ü
+        glVertex2f(x + size, y);              // ìš°ì¸¡ í•˜ë‹¨
         glVertex2f(x, y);
         break;
-    case 1: // ¼ıÀÚ 1
-        glVertex2f(x + size * 0.5f, y);       // Áß¾Ó ¼¼·Î¼±
+    case 1: // ìˆ«ì 1
+        glVertex2f(x + size * 0.5f, y);       // ì¤‘ì•™ ì„¸ë¡œì„ 
         glVertex2f(x + size * 0.5f, y + size);
         break;
-    case 2: // ¼ıÀÚ 2 (µÚÁıÈû)
-        glVertex2f(x, y);                     // ÇÏ´Ü °¡·Î¼±
+    case 2: // ìˆ«ì 2 (ë’¤ì§‘í˜)
+        glVertex2f(x, y);                     // í•˜ë‹¨ ê°€ë¡œì„ 
         glVertex2f(x + size, y);
-        glVertex2f(x + size, y);              // ¿À¸¥ÂÊ ÇÏ´Ü
+        glVertex2f(x + size, y);              // ì˜¤ë¥¸ìª½ í•˜ë‹¨
         glVertex2f(x + size, y + size * 0.5f);
-        glVertex2f(x + size, y + size * 0.5f);// Áß°£ °¡·Î¼±
+        glVertex2f(x + size, y + size * 0.5f);// ì¤‘ê°„ ê°€ë¡œì„ 
         glVertex2f(x, y + size * 0.5f);
-        glVertex2f(x, y + size * 0.5f);       // ¿ŞÂÊ »ó´Ü
+        glVertex2f(x, y + size * 0.5f);       // ì™¼ìª½ ìƒë‹¨
         glVertex2f(x, y + size);
-        glVertex2f(x, y + size);              // »ó´Ü °¡·Î¼±
+        glVertex2f(x, y + size);              // ìƒë‹¨ ê°€ë¡œì„ 
         glVertex2f(x + size, y + size);
         break;
-    case 3: // ¼ıÀÚ 3
-        glVertex2f(x, y + size);              // »ó´Ü °¡·Î¼±
+    case 3: // ìˆ«ì 3
+        glVertex2f(x, y + size);              // ìƒë‹¨ ê°€ë¡œì„ 
         glVertex2f(x + size, y + size);
-        glVertex2f(x + size, y + size);       // ¿À¸¥ÂÊ ¼¼·Î¼± (À§)
+        glVertex2f(x + size, y + size);       // ì˜¤ë¥¸ìª½ ì„¸ë¡œì„  (ìœ„)
         glVertex2f(x + size, y);
-        glVertex2f(x, y + size * 0.5f);       // Áß°£ °¡·Î¼±
+        glVertex2f(x, y + size * 0.5f);       // ì¤‘ê°„ ê°€ë¡œì„ 
         glVertex2f(x + size, y + size * 0.5f);
-        glVertex2f(x, y);                     // ÇÏ´Ü °¡·Î¼±
+        glVertex2f(x, y);                     // í•˜ë‹¨ ê°€ë¡œì„ 
         glVertex2f(x + size, y);
         break;
     case 4:
-        // ¿ŞÂÊ ¼¼·Î¼±
-        glVertex2f(x, y + size);                // ¿ŞÂÊ À§
-        glVertex2f(x, y);                       // ¿ŞÂÊ ¾Æ·¡
+        // ì™¼ìª½ ì„¸ë¡œì„ 
+        glVertex2f(x, y + size);                // ì™¼ìª½ ìœ„
+        glVertex2f(x, y);                       // ì™¼ìª½ ì•„ë˜
 
-        // °¡·Î¼± (Áß¾Ó)
-        glVertex2f(x, y + size * 0.5f);         // ¿ŞÂÊ Áß°£
-        glVertex2f(x + size, y + size * 0.5f);   // ¿À¸¥ÂÊ Áß°£
+        // ê°€ë¡œì„  (ì¤‘ì•™)
+        glVertex2f(x, y + size * 0.5f);         // ì™¼ìª½ ì¤‘ê°„
+        glVertex2f(x + size, y + size * 0.5f);   // ì˜¤ë¥¸ìª½ ì¤‘ê°„
 
-        // ¿À¸¥ÂÊ ¼¼·Î¼±
-        glVertex2f(x + size, y + size * 0.5f);   // ¿À¸¥ÂÊ Áß°£
-        glVertex2f(x + size, y);                 // ¿À¸¥ÂÊ ¾Æ·¡
+        // ì˜¤ë¥¸ìª½ ì„¸ë¡œì„ 
+        glVertex2f(x + size, y + size * 0.5f);   // ì˜¤ë¥¸ìª½ ì¤‘ê°„
+        glVertex2f(x + size, y);                 // ì˜¤ë¥¸ìª½ ì•„ë˜
         break;
 
 
-    case 5: // ¼ıÀÚ 5
-        glVertex2f(x + size, y + size);       // »ó´Ü °¡·Î¼±
+    case 5: // ìˆ«ì 5
+        glVertex2f(x + size, y + size);       // ìƒë‹¨ ê°€ë¡œì„ 
         glVertex2f(x, y + size);
-        glVertex2f(x, y + size);              // ¿ŞÂÊ ¼¼·Î¼± (À§)
+        glVertex2f(x, y + size);              // ì™¼ìª½ ì„¸ë¡œì„  (ìœ„)
         glVertex2f(x, y + size * 0.5f);
-        glVertex2f(x, y + size * 0.5f);       // Áß°£ °¡·Î¼±
+        glVertex2f(x, y + size * 0.5f);       // ì¤‘ê°„ ê°€ë¡œì„ 
         glVertex2f(x + size, y + size * 0.5f);
-        glVertex2f(x + size, y + size * 0.5f);// ¿À¸¥ÂÊ ¼¼·Î¼± (¾Æ·¡)
+        glVertex2f(x + size, y + size * 0.5f);// ì˜¤ë¥¸ìª½ ì„¸ë¡œì„  (ì•„ë˜)
         glVertex2f(x + size, y);
-        glVertex2f(x + size, y);              // ÇÏ´Ü °¡·Î¼±
+        glVertex2f(x + size, y);              // í•˜ë‹¨ ê°€ë¡œì„ 
         glVertex2f(x, y);
         break;
-    case 6: // ¼ıÀÚ 6
-        glVertex2f(x + size, y + size);       // »ó´Ü °¡·Î¼±
+    case 6: // ìˆ«ì 6
+        glVertex2f(x + size, y + size);       // ìƒë‹¨ ê°€ë¡œì„ 
         glVertex2f(x, y + size);
-        glVertex2f(x, y + size);              // ¿ŞÂÊ ¼¼·Î¼± (ÀüÃ¼)
+        glVertex2f(x, y + size);              // ì™¼ìª½ ì„¸ë¡œì„  (ì „ì²´)
         glVertex2f(x, y);
-        glVertex2f(x, y);                     // ÇÏ´Ü °¡·Î¼±
+        glVertex2f(x, y);                     // í•˜ë‹¨ ê°€ë¡œì„ 
         glVertex2f(x + size, y);
-        glVertex2f(x + size, y);              // ¿À¸¥ÂÊ ¼¼·Î¼± (¾Æ·¡)
+        glVertex2f(x + size, y);              // ì˜¤ë¥¸ìª½ ì„¸ë¡œì„  (ì•„ë˜)
         glVertex2f(x + size, y + size * 0.5f);
-        glVertex2f(x + size, y + size * 0.5f);// Áß°£ °¡·Î¼±
+        glVertex2f(x + size, y + size * 0.5f);// ì¤‘ê°„ ê°€ë¡œì„ 
         glVertex2f(x, y + size * 0.5f);
         break;
-    case 7: // ¼ıÀÚ 7
-        glVertex2f(x, y + size);              // »ó´Ü °¡·Î¼±
+    case 7: // ìˆ«ì 7
+        glVertex2f(x, y + size);              // ìƒë‹¨ ê°€ë¡œì„ 
         glVertex2f(x + size, y + size);
-        glVertex2f(x + size, y + size);       // ¿À¸¥ÂÊ ¼¼·Î¼±
+        glVertex2f(x + size, y + size);       // ì˜¤ë¥¸ìª½ ì„¸ë¡œì„ 
         glVertex2f(x + size, y);
         break;
-    case 8: // ¼ıÀÚ 8
-        glVertex2f(x, y);                     // ÁÂÃø ÇÏ´Ü
+    case 8: // ìˆ«ì 8
+        glVertex2f(x, y);                     // ì¢Œì¸¡ í•˜ë‹¨
         glVertex2f(x, y + size);
-        glVertex2f(x, y + size);              // ÁÂÃø »ó´Ü
+        glVertex2f(x, y + size);              // ì¢Œì¸¡ ìƒë‹¨
         glVertex2f(x + size, y + size);
-        glVertex2f(x + size, y + size);       // ¿ìÃø »ó´Ü
+        glVertex2f(x + size, y + size);       // ìš°ì¸¡ ìƒë‹¨
         glVertex2f(x + size, y);
-        glVertex2f(x + size, y);              // ¿ìÃø ÇÏ´Ü
+        glVertex2f(x + size, y);              // ìš°ì¸¡ í•˜ë‹¨
         glVertex2f(x, y);
-        glVertex2f(x, y + size * 0.5f);       // Áß°£ °¡·Î¼±
+        glVertex2f(x, y + size * 0.5f);       // ì¤‘ê°„ ê°€ë¡œì„ 
         glVertex2f(x + size, y + size * 0.5f);
         break;
     }
@@ -215,25 +200,34 @@ void Render::drawNumber(int number, float x, float y, float size) {
 
 
 void Render::drawFlag(float x, float y, float size) {
-    // ±ê¹ß Ãµ (»¡°£»ö)
+    // ê¹ƒë°œ ì²œ (ë¹¨ê°„ìƒ‰)
     glColor3f(1.0f, 0.0f, 0.0f);
     glBegin(GL_TRIANGLES);
-    glVertex2f(x + size * 0.3f, y);             // ±ê¹ß »ó´Ü (À§ÂÊ Á¡)
-    glVertex2f(x + size * 0.3f, y + size * 0.5f); // Áß°£ ÁöÁ¡ (¾Æ·¡ÂÊ ¿ŞÂÊ Á¡)
-    glVertex2f(x + size * 0.7f, y + size * 0.5f); // Áß°£ ÁöÁ¡ (¾Æ·¡ÂÊ ¿À¸¥ÂÊ Á¡)
+    glVertex2f(x + size * 0.3f, y);             // ê¹ƒë°œ ìƒë‹¨ (ìœ„ìª½ ì )
+    glVertex2f(x + size * 0.3f, y + size * 0.5f); // ì¤‘ê°„ ì§€ì  (ì•„ë˜ìª½ ì™¼ìª½ ì )
+    glVertex2f(x + size * 0.7f, y + size * 0.5f); // ì¤‘ê°„ ì§€ì  (ì•„ë˜ìª½ ì˜¤ë¥¸ìª½ ì )
     glEnd();
 
-    // ±ê¹ß´ë (°ËÁ¤»ö)
+    // ê¹ƒë°œëŒ€ (ê²€ì •ìƒ‰)
     glColor3f(0.0f, 0.0f, 0.0f);
     glLineWidth(2.0f);
     glBegin(GL_LINES);
-    glVertex2f(x + size * 0.3f, y);              // ±ê¹ß´ë ¿ŞÂÊ (À§ÂÊ)
-    glVertex2f(x + size * 0.3f, y + size);       // ±ê¹ß´ë ¿À¸¥ÂÊ (¾Æ·¡ÂÊ)
+    glVertex2f(x + size * 0.3f, y);              // ê¹ƒë°œëŒ€ ì™¼ìª½ (ìœ„ìª½)
+    glVertex2f(x + size * 0.3f, y + size);       // ê¹ƒë°œëŒ€ ì˜¤ë¥¸ìª½ (ì•„ë˜ìª½)
     glEnd();
 }
 
 void Render::RenderText(const std::string& text, float x, float y, float scale) {
+    glEnable(GL_BLEND); // ì•ŒíŒŒ ë¸”ë Œë”© í™œì„±í™”
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_TEXTURE_2D); // í…ìŠ¤ì²˜ í™œì„±í™”
     for (auto c : text) {
+
+        if (Characters.find(c) == Characters.end()) {
+            std::cerr << "Character not loaded: " << c << std::endl;
+            continue; // ë¬¸ìê°€ ë¡œë“œë˜ì§€ ì•Šì•˜ë‹¤ë©´ ê±´ë„ˆë›°ê¸°
+        }
+
         Character ch = Characters[c];
 
         float xpos = x + ch.BearingX * scale;
@@ -253,9 +247,12 @@ void Render::RenderText(const std::string& text, float x, float y, float scale) 
 
         x += (ch.Advance >> 6) * scale;
     }
+
+    glDisable(GL_BLEND); // ë¸”ë Œë”© ë¹„í™œì„±í™”
+    glDisable(GL_TEXTURE_2D); // í…ìŠ¤ì²˜ ë¹„í™œì„±í™”
 }
 
-// FreeType ÃÊ±âÈ­ ¹× ±ÛÀÚ ÅØ½ºÃ³ »ı¼º
+// FreeType ì´ˆê¸°í™” ë° ê¸€ì í…ìŠ¤ì²˜ ìƒì„±
 void Render::LoadFont(const char* fontPath) {
     FT_Library ft;
     if (FT_Init_FreeType(&ft)) {
@@ -269,9 +266,9 @@ void Render::LoadFont(const char* fontPath) {
         return;
     }
 
-    FT_Set_Pixel_Sizes(face, 0, 48); // ÆùÆ® Å©±â ¼³Á¤
+    FT_Set_Pixel_Sizes(face, 0, 48); // í°íŠ¸ í¬ê¸° ì„¤ì •
 
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // ÅØ½ºÃ³ Á¤·Ä
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // í…ìŠ¤ì²˜ ì •ë ¬
 
     for (unsigned char c = 0; c < 128; c++) {
         if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
@@ -313,4 +310,89 @@ void Render::LoadFont(const char* fontPath) {
 
     FT_Done_Face(face);
     FT_Done_FreeType(ft);
+}
+
+void Render::drawDigit(int digit, float x, float y, float size) {
+    glColor3f(1.0f, 0.0f, 0.0f); // ë¹¨ê°„ìƒ‰
+
+    /*
+     -- 0 --
+    |       |
+    5       1
+    |       |
+     -- 6 --
+    |       |
+    4       2
+    |       |
+     -- 3 --
+    */
+
+    // ìˆ«ìì— ë”°ë¥¸ ì„¸ê·¸ë¨¼íŠ¸ í™œì„±í™” (ì •í™•í•œ íŒ¨í„´ìœ¼ë¡œ ìˆ˜ì •)
+    static bool segments[10][7] = {
+        {1, 1, 1, 1, 1, 1, 0}, // 0
+        {0, 1, 1, 0, 0, 0, 0}, // 1
+        {1, 1, 0, 1, 1, 0, 1}, // 2
+        {1, 1, 1, 1, 0, 0, 1}, // 3
+        {0, 1, 1, 0, 0, 1, 1}, // 4
+        {1, 0, 1, 1, 0, 1, 1}, // 5
+        {1, 0, 1, 1, 1, 1, 1}, // 6
+        {1, 1, 1, 0, 0, 0, 0}, // 7
+        {1, 1, 1, 1, 1, 1, 1}, // 8
+        {1, 1, 1, 1, 0, 1, 1}  // 9
+    };
+
+
+    // ê° ì„¸ê·¸ë¨¼íŠ¸ì˜ ìœ„ì¹˜ì™€ í¬ê¸°
+    static struct Segment {
+        float x1, y1, x2, y2;
+    };
+
+    static Segment seg[7] = {
+        {x, y + size, x + size, y + size * 0.9f},   // Top
+        {x + size * 0.9f, y + size, x + size, y},  // Top-right
+        {x + size * 0.9f, y, x + size, y - size},  // Bottom-right
+        {x, y - size, x + size, y - size * 1.1f},  // Bottom
+        {x, y, x + size * 0.1f, y - size},         // Bottom-left
+        {x, y + size, x + size * 0.1f, y},         // Top-left
+        {x, y, x + size, y - size * 0.1f}          // Middle
+    };
+
+    // ë°°ê²½ì„ ì˜…ì€ ë¹¨ê°„ìƒ‰ìœ¼ë¡œ ì±„ìš°ê¸°
+    glColor3f(0.3f, 0.0f, 0.0f); // ì˜…ì€ ë¹¨ê°„ìƒ‰
+    glBegin(GL_QUADS);
+    glVertex2f(x, y + size);
+    glVertex2f(x + size, y + size);
+    glVertex2f(x + size, y - size);
+    glVertex2f(x, y - size);
+    glEnd();
+
+    // í™œì„±í™”ëœ ì„¸ê·¸ë¨¼íŠ¸ ì§„í•œ ë¹¨ê°„ìƒ‰ìœ¼ë¡œ ì±„ìš°ê¸°
+    glColor3f(1.0f, 0.0f, 0.0f); // ì§„í•œ ë¹¨ê°„ìƒ‰
+    for (int i = 0; i < 7; ++i) {
+        if (segments[digit][i]) {
+            glBegin(GL_QUADS);
+            glVertex2f(seg[i].x1, seg[i].y1);
+            glVertex2f(seg[i].x2, seg[i].y1);
+            glVertex2f(seg[i].x2, seg[i].y2);
+            glVertex2f(seg[i].x1, seg[i].y2);
+            glEnd();
+        }
+    }
+}
+
+void Render::renderTimer(int time, float x, float y, float size) {
+    // ìµœëŒ€ 3ìë¦¬ ìˆ«ìë¡œ í‘œí˜„ (ì˜ˆ: 999, 045 ë“±)
+    time = time % 1000; // 1000 ì´ìƒì€ 999ë¡œ ì œí•œ
+
+    int hundreds = time / 100;
+    int tens = (time / 10) % 10;
+    int units = time % 10;
+
+    // ìˆ«ì ê°„ê²© ì¡°ì •
+    float digitSpacing = size * 1.5f; // ìˆ«ì ê°„ê²©ì„ ë„“í˜
+
+    // ì˜¤ë¥¸ìª½ë¶€í„° ìˆ«ìë¥¼ í‘œì‹œ
+    drawDigit(units, x, y, size);                   // ì¼ì˜ ìë¦¬
+    drawDigit(tens, x - digitSpacing, y, size);     // ì‹­ì˜ ìë¦¬
+    drawDigit(hundreds, x - digitSpacing * 2, y, size); // ë°±ì˜ ìë¦¬
 }

@@ -37,8 +37,18 @@ public:
 
 	static void LoadFont(const char* fontPath);
 
+	static void drawDigit(int digit, float x, float y, float size);
+	static void renderTimer(int time, float x, float y, float size);
+
 	static std::map<char, Character> Characters; // 글자 데이터 맵
 
+	static void renderTestDigits(float x, float y, float size) {
+		float digitSpacing = size * 1.5f; // 숫자 간격
+
+		for (int i = 0; i < 10; ++i) {
+			drawDigit(i, x + (digitSpacing * i), y, size);
+		}
+	}
 };
 
 
